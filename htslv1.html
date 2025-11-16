@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Суми діагоналей матриці</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+/* -------------------------------------- */
+/*                 ТЕМИ                   */
+/* -------------------------------------- */
+
+:root {
+    --bg: #0f172a;
+    --card: #1e293b;
+    --text: #e2e8f0;
+    --accent: #38bdf8;
+    --input-bg: #0f172a;
+    --border: #334155;
+}
+
+:root.light {
+    --bg: #f3f4f6;
+    --card: #ffffff;
+    --text: #1e293b;
+    --accent: #0ea5e9;
+    --input-bg: #f8fafc;
+    --border: #d1d5db;
+}
+
+body {
+    margin: 0;
+    background: var(--bg);
+    font-family: Arial, sans-serif;
+    color: var(--text);
+    display: flex;
+    justify-content: center;
+    padding: 30px;
+    transition: 0.3s;
+}
+
+.container {
+    max-width: 700px;
+    width: 100%;
+    background: var(--card);
+    padding: 30px;
+    border-radius: 18px;
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: var(--accent);
+}
+
+/* -------------------------------------- */
+/*            ЕЛЕМЕНТИ ФОРМИ               */
+/* -------------------------------------- */
+
+input, button {
+    width: 100%;
+    padding: 12px;
+    margin-top: 10px;
+    border-radius: 10px;
+    border: none;
+    font-size: 16px;
+}
+
+input {
+    background: var(--input-bg);
+    color: var(--text);
+    border: 1px solid var(--border);
+}
+
+button {
+    background: var(--accent);
+    color: #0f172a;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+/* -------------------------------------- */
+/*                 ТАБЛИЦЯ                */
+/* -------------------------------------- */
+
+table {
+    margin-top: 20px;
+    width: 100%;
+    border-collapse: collapse;
+}
+
+td {
+    border: 1px solid var(--border);
+    padding: 8px;
+    text-align: center;
+}
+
+td input {
+    width: 55px;
+    padding: 6px;
+}
+
+/* -------------------------------------- */
+/*            КНОПКА ТЕМИ                 */
+/* -------------------------------------- */
+
+.theme-toggle {
+    position: fixed;
+    top: 15px;
+    right: 20px;
+    background: var(--accent);
+    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #0f172a;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+/* -------------------------------------- */
+/*           АНІМАЦІЯ ЛОГОТИПУ            */
+/* -------------------------------------- */
+
+.logo-box {
+    position: fixed;
+    left: 20px;
+    bottom: 25px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.star {
+    font-size: 20px;
+    opacity: 0;
+    animation: starBlink 2s infinite ease-in-out;
+}
+
+.star:nth-child(1) { animation-delay: 0s; }
+.star:nth-child(2) { animation-delay: 0.2s; }
+.star:nth-child(3) { animation-delay: 0.4s; }
+
+.logo-text {
+    font-size: 22px;
+    font-weight: bold;
+    color: var(--accent);
+    letter-spacing: 2px;
+    opacity: 0;
+    animation: logoAppear 3s ease forwards;
+    position: relative;
+}
+
+@keyframes logoAppear {
+    0% { opacity: 0; filter: blur(4px); }
+    40% { opacity: 1; filter: blur(1px); }
+    100% { opacity: 1; filter: blur(0); }
+}
+
+@keyframes starBlink {
+    0% { opacity: 0; transform: scale(0.6); }
+    50% { opacity: 1; transform: scale(1.3); }
+    100% { opacity: 0; transform: scale(0.6); }
+}
+
+@keyframes drawText {
+    from { width: 0; }
+    to { width: 100%; }
+}
+
+/* -------------------------------------- */
+/*             МОДАЛЬНЕ ВІКНО              */
+/* -------------------------------------- */
+
+.modal-bg {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.55);
+    display: none;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal {
+    background: var(--card);
+    padding: 25px;
+    border-radius: 16px;
+    max-width: 400px;
+    text-align: center;
+}
+
+.close-btn {
+    background: #ef4444;
+    color: white;
+    margin-top: 10px;
+}
+</style>
+</head>
+
+<body>
+
+<!-- КНОПКА ТЕМИ -->
+<div class="theme-toggle" onclick="toggleTheme()">🌓</div>
+
+<!-- АНІМАЦІЯ ЛОГОТИПУ -->
+<div class="logo-box">
+    <div class="star">✨</div>
+    <div class="logo-text">htsl.v</div>
+    <div class="star">✨</div>
+</div>
+
+<!-- ОСНОВНИЙ БЛОК -->
+<div class="container">
+
+    <h1>Обчислення сум діагоналей</h1>
+
+    <input type="number" id="size" placeholder="Введіть розмір матриці (наприклад: 3)" min="2" max="12">
+    <button onclick="generateMatrix()">Створити матрицю</button>
+
+    <div id="matrixContainer"></div>
+
+    <button id="calcButton" onclick="calculate()" style="display:none;">Обчислити суми</button>
+
+</div>
+
+<!-- МОДАЛЬНЕ ВІКНО -->
+<div class="modal-bg" id="modalBg">
+    <div class="modal">
+        <h2>Результат</h2>
+        <p id="mainDiag"></p>
+        <p id="sideDiag"></p>
+        <button class="close-btn" onclick="closeModal()">Закрити</button>
+    </div>
+</div>
+
+<!-- -------------------------------------- -->
+<!--                JAVASCRIPT              -->
+<!-- -------------------------------------- -->
+
+<script>
+// ТЕМА
+document.addEventListener("DOMContentLoaded", () => {
+    let saved = localStorage.getItem("theme");
+    if (saved === "light") document.documentElement.classList.add("light");
+});
+
+function toggleTheme() {
+    document.documentElement.classList.toggle("light");
+    localStorage.setItem("theme",
+        document.documentElement.classList.contains("light") ? "light" : "dark"
+    );
+}
+
+let matrixInputs = [];
+
+// СТВОРЕННЯ МАТРИЦІ
+function generateMatrix() {
+    const size = Number(document.getElementById("size").value);
+    const container = document.getElementById("matrixContainer");
+
+    if (!size || size < 2 || size > 12) {
+        alert("Введіть число від 2 до 12!");
+        return;
+    }
+
+    container.innerHTML = "";
+    matrixInputs = [];
+
+    let html = "<table>";
+
+    for (let i = 0; i < size; i++) {
+        html += "<tr>";
+        matrixInputs[i] = [];
+
+        for (let j = 0; j < size; j++) {
+            let id = `cell-${i}-${j}`;
+            html += `<td><input id="${id}" type="number"></td>`;
+            matrixInputs[i][j] = id;
+        }
+
+        html += "</tr>";
+    }
+
+    html += "</table>";
+    container.innerHTML = html;
+
+    document.getElementById("calcButton").style.display = "block";
+}
+
+// ОБЧИСЛЕННЯ ДІАГОНАЛЕЙ
+function calculate() {
+    let size = matrixInputs.length;
+    let main = 0, side = 0;
+
+    for (let i = 0; i < size; i++) {
+        for (let j = 0; j < size; j++) {
+            let value = Number(document.getElementById(matrixInputs[i][j]).value);
+
+            if (i === j) main += value;
+            if (i + j === size - 1) side += value;
+        }
+    }
+
+    document.getElementById("mainDiag").innerText = "Сума головної діагоналі: " + main;
+    document.getElementById("sideDiag").innerText = "Сума побічної діагоналі: " + side;
+
+    document.getElementById("modalBg").style.display = "flex";
+}
+
+// ЗАКРИТТЯ МОДАЛКИ
+function closeModal() {
+    document.getElementById("modalBg").style.display = "none";
+}
+</script>
+
+</body>
+</html>
